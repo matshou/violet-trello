@@ -1,0 +1,24 @@
+#!/bin/bash
+# Creates a version and deploys a script to a
+# deployment ID specified in the deployment.meta file
+#
+# The response gives the version of the deployment.
+# Read more about this command in the official clasp docs:
+# https://github.com/google/clasp#deploy
+if [ $1 = "redeploy" ]
+then
+	bash apps/trellinator/bin/trellinator push
+	clasp deploy -i "$(head -1 deployment.meta)"
+# Perform specified murphy test on a given board
+# $2 - board dir file name (root directory of the murphy script)
+# $3 - name of the murphy script (without the js.murphy extension)
+# The api and token will be automatically read from the meta files
+elif [ $1 = "test" ]
+then
+	API_KEY="$(head -1 trello-api.meta)"
+	TOKEN="$(head -1 trello-token.meta)"
+	cd boards/$2/$3.js.murphy
+	node default.run.js $API_KEY $TOKEN
+else
+	bash apps/trellinator/bin/trellinator $1 $2 $3
+fi
